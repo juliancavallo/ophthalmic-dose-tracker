@@ -1,6 +1,6 @@
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR0Yls1hbeHzc_K6z-sJFpjnQYqA9dSW9LZcLi7FOkYdqDtnuVNaNh5T9pbLbIJXv5ZgICe63uyag0a/pub?gid=0&single=true&output=csv';
 
-// drugConfig: { "bevacizumab": 4, ... } — populated from sheet
+// drugConfig: { "bevacizumab": 4, ... } — populated from sheet (applications per vial)
 let drugConfig = {};
 
 function escHtml(str) {
@@ -49,14 +49,14 @@ try {
 
     const header = rows[0].map(h => h.toLowerCase());
     const drugIdx  = header.findIndex(h => h.includes('droga'));
-    const vialsIdx = header.findIndex(h => h.includes('cant') || h.includes('paq') || h.includes('cantidad_paquete'));
-    if (drugIdx === -1 || vialsIdx === -1)
-    throw new Error('Encabezados no encontrados: se esperan "Droga" y "Cantidad_paquete"');
+    const appsPerVialIdx = header.findIndex(h => h.includes('aplicaciones') || h.includes('apps') || h.includes('aplicaciones_por'));
+    if (drugIdx === -1 || appsPerVialIdx === -1)
+    throw new Error('Encabezados no encontrados: se esperan "Droga" y "Aplicaciones_por_ampolla"');
 
     tbody.innerHTML = '';
     for (let i = 1; i < rows.length; i++) {
     const name = (rows[i][drugIdx] || '').trim();
-    const qty  = Number((rows[i][vialsIdx] || '').replace(/\s+/g, ''));
+    const qty  = Number((rows[i][appsPerVialIdx] || '').replace(/\s+/g, ''));
     if (!name) continue;
     drugConfig[name.toLowerCase()] = Number.isFinite(qty) && qty > 0 ? qty : NaN;
     const tr = document.createElement('tr');
@@ -113,31 +113,31 @@ if (drugIdx === -1 || eyeIdx === -1) {
     return;
 }
 
-const counts = {};
+const eyeCounts = {}; // drug -> total eyes
 let skipped = 0;
 for (let i = 1; i < lines.length; i++) {
     const cols = lines[i].split(sep);
     const drug   = (cols[drugIdx] || '').trim();
     const eyeVal = (cols[eyeIdx]  || '').trim();
-    const apps = parseEye(eyeVal);
-    if (!drug || apps === null) { skipped++; continue; }
-    counts[drug] = (counts[drug] || 0) + apps;
+    const eyes = parseEye(eyeVal);
+    if (!drug || eyes === null) { skipped++; continue; }
+    eyeCounts[drug] = (eyeCounts[drug] || 0) + eyes;
 }
 
-const drugs = Object.keys(counts).sort();
+const drugs = Object.keys(eyeCounts).sort();
 if (drugs.length === 0) { showError('No se encontraron filas válidas. Verificá el formato de los datos.'); return; }
 
-let totalAmpoules = 0, totalPackages = 0;
+let totalEyes = 0, totalAmpoules = 0;
 const unrecognized = [];
 const resultEl = document.getElementById('results-grid');
 resultEl.innerHTML = '';
 
 drugs.forEach(drug => {
-    const ampoules = counts[drug];
-    totalAmpoules += ampoules;
-    const vialsPerPack = drugConfig[drug.toLowerCase()];
-    const packages = vialsPerPack ? Math.ceil(ampoules / vialsPerPack) : null;
-    if (packages !== null) totalPackages += packages;
+    const eyes = eyeCounts[drug];
+    totalEyes += eyes;
+    const appsPerVial = drugConfig[drug.toLowerCase()];
+    const ampoules = appsPerVial ? Math.ceil(eyes / appsPerVial) : null;
+    if (ampoules !== null) totalAmpoules += ampoules;
     else unrecognized.push(drug);
 
     const card = document.createElement('div');
@@ -145,12 +145,12 @@ drugs.forEach(drug => {
     card.innerHTML = `
     <div class="drug-card-name">${escHtml(drug)}</div>
     <div class="drug-card-row">
-        <span class="dc-label">Ampollas</span>
-        <span class="dc-value">${ampoules}</span>
+        <span class="dc-label">Ojos</span>
+        <span class="dc-value">${eyes}</span>
     </div>
     <div class="drug-card-row">
-        <span class="dc-label">Paquetes${vialsPerPack ? ' (×' + vialsPerPack + ')' : ''}</span>
-        <span class="dc-value${packages === null ? ' muted' : ''}">${packages !== null ? packages : '—'}</span>
+        <span class="dc-label">Ampollas${appsPerVial ? ' (×' + appsPerVial + ' apps/amp.)' : ''}</span>
+        <span class="dc-value${ampoules === null ? ' muted' : ''}">${ampoules !== null ? ampoules : '—'}</span>
     </div>
     `;
     resultEl.appendChild(card);
@@ -158,12 +158,12 @@ drugs.forEach(drug => {
 
 document.getElementById('totals-bar').innerHTML = `
     <div class="total-item">
-    <span class="total-label">Total ampollas</span>
-    <span class="total-value">${totalAmpoules}</span>
+    <span class="total-label">Total ojos</span>
+    <span class="total-value">${totalEyes}</span>
     </div>
     <div class="total-item">
-    <span class="total-label">Total paquetes</span>
-    <span class="total-value">${totalPackages}</span>
+    <span class="total-label">Total ampollas necesarias</span>
+    <span class="total-value">${totalAmpoules}</span>
     </div>
 `;
 

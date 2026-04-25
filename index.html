@@ -28,7 +28,7 @@
 
     <div id="pane-config" class="pane">
       <div class="card">
-        <div class="section-label">Drogas y ampollas por paquete</div>
+        <div class="section-label">Drogas y aplicaciones por ampolla</div>
         <div id="config-loading" class="loading-row">
           <div class="spinner"></div>
           Cargando drogas...
@@ -39,7 +39,7 @@
         </div>
         <div id="config-table-wrap" style="display:none;">
           <table class="config-table">
-            <thead><tr><th>Droga</th><th style="text-align:right;">Ampollas / paquete</th></tr></thead>
+            <thead><tr><th>Droga</th><th style="text-align:right;">Aplicaciones / ampolla</th></tr></thead>
             <tbody id="drugs-tbody"></tbody>
           </table>
           <button class="reload-btn" onclick="loadDrugsFromSheet()">↺ Actualizar desde la planilla</button>
@@ -62,7 +62,7 @@
   Ranibizumab	AO
   Bevacizumab	OI
   ..."></textarea>
-        <p class="hint">Valores de ojo aceptados: OI · OD · AO &nbsp;|&nbsp; OI y OD = 1 ampolla · AO = 2 ampollas</p>
+        <p class="hint">Valores de ojo aceptados: OI · OD · AO &nbsp;|&nbsp; OI y OD = 1 ojo · AO = 2 ojos</p>
         <button class="btn-primary" onclick="calculate()">Calcular resumen</button>
         <div id="error-msg" class="error-msg"></div>
       </div>
