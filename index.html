@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Ampollas — Oftalmología</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12.5c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        </svg>
+      </div>
+      <h1>Calculadora de Ampollas</h1>
+    </div>
+    <div class="subtitle">Clínica Oftalmológica</div>
+  </header>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('calc')">Calculadora</button>
+      <button class="tab" onclick="switchTab('config')">Configuración de drogas</button>
+    </div>
+
+    <div id="pane-config" class="pane">
+      <div class="card">
+        <div class="section-label">Drogas y ampollas por paquete</div>
+        <div id="config-loading" class="loading-row">
+          <div class="spinner"></div>
+          Cargando drogas...
+        </div>
+        <div id="config-error" style="display:none;">
+          <div class="error-msg" style="display:block; margin-top:0;">No se pudo cargar la lista de drogas. Verificá tu conexión a internet.</div>
+          <button class="reload-btn" onclick="loadDrugsFromSheet()">↺ Reintentar</button>
+        </div>
+        <div id="config-table-wrap" style="display:none;">
+          <table class="config-table">
+            <thead><tr><th>Droga</th><th style="text-align:right;">Ampollas / paquete</th></tr></thead>
+            <tbody id="drugs-tbody"></tbody>
+          </table>
+          <button class="reload-btn" onclick="loadDrugsFromSheet()">↺ Actualizar desde la planilla</button>
+        </div>
+      </div>
+      <div class="source-note">
+        <div class="source-dot"></div>
+        Los datos se cargan automáticamente desde la planilla de configuración.
+      </div>
+    </div>
+
+    <div id="pane-calc" class="pane active">
+      <div class="card">
+        <div class="section-label">Datos del Excel</div>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:10px;">
+          Seleccioná y copiá las columnas <strong>Droga</strong> y <strong>Ojo</strong> del Excel (incluyendo los encabezados) y pegálas acá:
+        </p>
+        <textarea id="paste-area" placeholder="Droga	Ojo
+  Bevacizumab	OD
+  Ranibizumab	AO
+  Bevacizumab	OI
+  ..."></textarea>
+        <p class="hint">Valores de ojo aceptados: OI · OD · AO &nbsp;|&nbsp; OI y OD = 1 ampolla · AO = 2 ampollas</p>
+        <button class="btn-primary" onclick="calculate()">Calcular resumen</button>
+        <div id="error-msg" class="error-msg"></div>
+      </div>
+
+      <div id="results-section" class="results-section" style="display:none;">
+        <div class="section-label">Resumen de la jornada</div>
+        <div id="totals-bar" class="totals-bar"></div>
+        <div id="results-grid" class="results-grid"></div>
+        <div id="warn-msg-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+
+</body>
+</html>
