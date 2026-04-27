@@ -305,6 +305,26 @@
   .dc-label { font-size: 11px; color: var(--text3); }
   .dc-value { font-size: 15px; font-weight: 600; color: var(--text); }
   .dc-value.muted { font-size: 13px; color: var(--text3); font-weight: 400; }
+  .drug-card-row-edit {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .eyes-edit-form { margin-bottom: 10px; }
+  .eyes-edit-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .eyes-input {
+    width: 74px;
+    text-align: right;
+    background: var(--surface2);
+  }
+  .eyes-save-btn {
+    padding: 8px 10px;
+    white-space: nowrap;
+  }
 
   .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
 
@@ -378,4 +398,19 @@
     border-radius: 50%;
     background: var(--accent-mid);
     flex-shrink: 0;
+  }
+
+  @media (max-width: 560px) {
+    .drug-card-row-edit {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .eyes-edit-controls {
+      width: 100%;
+    }
+
+    .eyes-input {
+      width: 100%;
+    }
   }
