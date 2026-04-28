@@ -282,6 +282,9 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .drug-card-name {
@@ -303,27 +306,97 @@
   .drug-card-row:last-child { margin-bottom: 0; }
 
   .dc-label { font-size: 11px; color: var(--text3); }
+  .drug-card-row .dc-label { margin-right: 12px; }
   .dc-value { font-size: 15px; font-weight: 600; color: var(--text); }
   .dc-value.muted { font-size: 13px; color: var(--text3); font-weight: 400; }
-  .drug-card-row-edit {
-    align-items: flex-start;
-    gap: 10px;
+  .card-edit-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
   }
-  .eyes-edit-form { margin-bottom: 10px; }
-  .eyes-edit-controls {
-    display: flex;
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 24, 20, 0.42);
+    display: none;
     align-items: center;
-    gap: 8px;
-    min-width: 0;
+    justify-content: center;
+    padding: 16px;
+    z-index: 50;
   }
-  .eyes-input {
-    width: 74px;
-    text-align: right;
+
+  .modal {
+    width: min(100%, 360px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(26, 24, 20, 0.18);
+    padding: 18px;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .modal-label {
+    margin-bottom: 6px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .modal-close-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
     background: var(--surface2);
+    color: var(--text2);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
   }
-  .eyes-save-btn {
-    padding: 8px 10px;
-    white-space: nowrap;
+
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-field-label {
+    font-size: 12px;
+    color: var(--text2);
+    font-weight: 500;
+  }
+
+  .modal-error {
+    margin-top: 0;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .modal-save-btn {
+    width: auto;
+    margin-top: 0;
+    padding-inline: 18px;
   }
 
   .divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
@@ -401,16 +474,17 @@
   }
 
   @media (max-width: 560px) {
-    .drug-card-row-edit {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .eyes-edit-controls {
+    .modal {
       width: 100%;
+      padding: 16px;
     }
 
-    .eyes-input {
+    .modal-actions {
+      flex-direction: column-reverse;
+    }
+
+    .modal-actions .btn-secondary,
+    .modal-save-btn {
       width: 100%;
     }
   }

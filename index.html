@@ -76,6 +76,29 @@
     </div>
   </div>
 
+  <div id="edit-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+      <div class="modal-header">
+        <div>
+          <div class="section-label modal-label">Editar cantidad</div>
+          <h2 id="edit-modal-title" class="modal-title">Cantidad de ojos</h2>
+        </div>
+        <button id="edit-modal-close" class="modal-close-btn" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <form id="edit-modal-form" class="modal-form">
+        <label class="modal-field">
+          <span class="modal-field-label">Ojos</span>
+          <input id="edit-eyes-input" type="number" min="0" step="1" inputmode="numeric">
+        </label>
+        <div id="edit-modal-error" class="error-msg modal-error"></div>
+        <div class="modal-actions">
+          <button id="edit-modal-cancel" type="button" class="btn-secondary">Cancelar</button>
+          <button type="submit" class="btn-primary modal-save-btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="./app.js"></script>
 
 </body>

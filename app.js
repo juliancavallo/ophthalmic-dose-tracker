@@ -3,6 +3,7 @@ const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR0Yls1hbeHzc
 // drugConfig: { "bevacizumab": 4, ... } - populated from sheet (applications per vial)
 let drugConfig = {};
 let currentSummary = null;
+let currentEditingDrug = null;
 
 function escHtml(str) {
 return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -109,6 +110,48 @@ return {
 };
 }
 
+function closeEditModal() {
+const modal = document.getElementById('edit-modal');
+const errorEl = document.getElementById('edit-modal-error');
+modal.style.display = 'none';
+errorEl.style.display = 'none';
+errorEl.textContent = '';
+currentEditingDrug = null;
+}
+
+function openEditModal(drug) {
+if (!currentSummary || !(drug in currentSummary.eyeCounts)) return;
+
+currentEditingDrug = drug;
+document.getElementById('edit-modal-title').textContent = drug;
+document.getElementById('edit-eyes-input').value = currentSummary.eyeCounts[drug];
+document.getElementById('edit-modal-error').style.display = 'none';
+document.getElementById('edit-modal-error').textContent = '';
+document.getElementById('edit-modal').style.display = 'flex';
+document.getElementById('edit-eyes-input').focus();
+document.getElementById('edit-eyes-input').select();
+}
+
+function saveEditedEyes(event) {
+event.preventDefault();
+if (!currentSummary || !currentEditingDrug) return;
+
+const input = document.getElementById('edit-eyes-input');
+const errorEl = document.getElementById('edit-modal-error');
+const newEyes = Number(input.value);
+
+if (!Number.isInteger(newEyes) || newEyes < 0) {
+    errorEl.textContent = 'Ingresá un número entero mayor o igual a 0.';
+    errorEl.style.display = 'block';
+    input.focus();
+    return;
+}
+
+currentSummary.eyeCounts[currentEditingDrug] = newEyes;
+closeEditModal();
+renderSummary();
+}
+
 function renderSummary() {
 if (!currentSummary) return;
 
@@ -138,33 +181,13 @@ drugs.forEach((drug) => {
     title.textContent = drug;
     card.appendChild(title);
 
-    const editForm = document.createElement('form');
-    editForm.className = 'eyes-edit-form';
-    editForm.innerHTML = `
-    <div class="drug-card-row drug-card-row-edit">
+    const eyeRow = document.createElement('div');
+    eyeRow.className = 'drug-card-row';
+    eyeRow.innerHTML = `
         <span class="dc-label">Ojos</span>
-        <div class="eyes-edit-controls">
-        <input class="eyes-input" type="number" min="0" step="1" value="${eyes}" aria-label="Cantidad de ojos para ${escHtml(drug)}">
-        <button type="submit" class="btn-secondary eyes-save-btn">Actualizar</button>
-        </div>
-    </div>
+        <span class="dc-value">${eyes}</span>
     `;
-
-    editForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const input = editForm.querySelector('.eyes-input');
-    const newEyes = Number(input.value);
-
-    if (!Number.isInteger(newEyes) || newEyes < 0) {
-        input.focus();
-        return;
-    }
-
-    currentSummary.eyeCounts[drug] = newEyes;
-    renderSummary();
-    });
-
-    card.appendChild(editForm);
+    card.appendChild(eyeRow);
 
     const ampRow = document.createElement('div');
     ampRow.className = 'drug-card-row';
@@ -173,6 +196,13 @@ drugs.forEach((drug) => {
     <span class="dc-value${ampoules === null ? ' muted' : ''}">${ampoules !== null ? ampoules : '-'}</span>
     `;
     card.appendChild(ampRow);
+
+    const editButton = document.createElement('button');
+    editButton.type = 'button';
+    editButton.className = 'btn-secondary card-edit-btn';
+    editButton.textContent = 'Editar';
+    editButton.addEventListener('click', () => openEditModal(drug));
+    card.appendChild(editButton);
 
     resultEl.appendChild(card);
 });
@@ -268,6 +298,20 @@ const el = document.getElementById('error-msg');
 el.textContent = msg;
 el.style.display = 'block';
 }
+
+document.getElementById('edit-modal-form').addEventListener('submit', saveEditedEyes);
+document.getElementById('edit-modal-close').addEventListener('click', closeEditModal);
+document.getElementById('edit-modal-cancel').addEventListener('click', closeEditModal);
+document.getElementById('edit-modal').addEventListener('click', (event) => {
+if (event.target.id === 'edit-modal') {
+    closeEditModal();
+}
+});
+document.addEventListener('keydown', (event) => {
+if (event.key === 'Escape' && currentEditingDrug) {
+    closeEditModal();
+}
+});
 
 // Init
 loadDrugsFromSheet();
