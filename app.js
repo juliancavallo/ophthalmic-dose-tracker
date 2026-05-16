@@ -261,19 +261,50 @@ if (lines.length < 2) {
 }
 
 const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') ? ';' : ',';
-const headers = lines[0].split(sep).map((h) => h.trim().toLowerCase());
-const drugIdx = headers.findIndex((h) => h === 'droga');
-const eyeIdx = headers.findIndex((h) => h === 'ojo');
 
+const rows = lines.map((l) => l.split(sep).map((c) => (c || '').trim()));
+
+// Try to detect headers by name (flexible contains)
+const firstRow = rows[0].map((c) => (c || '').toLowerCase());
+let drugIdx = firstRow.findIndex((h) => h.includes('droga') || h.includes('drug'));
+let eyeIdx = firstRow.findIndex((h) => h.includes('ojo') || h.includes('eye') || h.includes('oi') || h.includes('od'));
+let dataStart = 1;
+
+// If headers not found, try to auto-detect columns from values (assume no header row)
 if (drugIdx === -1 || eyeIdx === -1) {
-    showError('No se encontraron columnas "Droga" y "Ojo" en los encabezados. Verificá que los nombres sean exactamente esos.');
+    // analyze columns across rows (including first row as data)
+    const maxRows = Math.min(rows.length, 40);
+    const colCount = rows[0].length;
+    const eyeScores = new Array(colCount).fill(0);
+    const drugScores = new Array(colCount).fill(0);
+
+    for (let j = 0; j < colCount; j++) {
+    for (let i = 0; i < maxRows; i++) {
+        const v = (rows[i][j] || '').trim();
+        if (!v) continue;
+        if (parseEye(v) !== null) eyeScores[j]++;
+        // drug likely contains letters and is not an eye code
+        if (/[A-Za-zÑñ].*/.test(v) && parseEye(v) === null) drugScores[j]++;
+    }
+    }
+
+    const bestEye = eyeScores.indexOf(Math.max(...eyeScores));
+    const bestDrug = drugScores.indexOf(Math.max(...drugScores));
+
+    if (eyeScores[bestEye] > 0 && drugScores[bestDrug] > 0 && bestEye !== bestDrug) {
+    eyeIdx = bestEye;
+    drugIdx = bestDrug;
+    dataStart = 0; // first row is data
+    } else {
+    showError('No se pudieron detectar las columnas de droga y ojo automáticamente. Asegurate que haya columnas con nombres o valores reconocibles.');
     return;
+    }
 }
 
 const eyeCounts = {};
 let skipped = 0;
-for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(sep);
+for (let i = dataStart; i < rows.length; i++) {
+    const cols = rows[i];
     const drug = (cols[drugIdx] || '').trim();
     const eyeVal = (cols[eyeIdx] || '').trim();
     const eyes = parseEye(eyeVal);
