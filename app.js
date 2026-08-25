@@ -96,7 +96,11 @@ document.getElementById('pane-' + tab).classList.add('active');
 }
 
 function parseEye(val) {
-const v = val.trim().toUpperCase();
+const v = String(val ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z]/g, '');
 if (v === 'AO') return 2;
 if (v === 'OI' || v === 'OD') return 1;
 return null;
