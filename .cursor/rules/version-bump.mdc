@@ -1,0 +1,13 @@
+---
+description: Subir versión del app-footer en cada commit
+alwaysApply: true
+---
+
+# Versionado del footer
+
+En cada commit de este repo, subir la versión que se muestra en el footer (`.app-footer` en `index.html`).
+
+- Cambio chico (fix, ajuste, mejora acotada): subir **patch** (p. ej. `1.0.4` → `1.0.5`) sin preguntar.
+- Si el cambio parece **minor** (feature visible, API/flujo nuevo) o **major** (breaking): preguntar a Julián antes de subir.
+- Incluir el bump de versión en el mismo commit que el cambio.
+- No hacer commit ni push salvo que Julián lo pida (esta regla no autoriza commit por sí sola).
